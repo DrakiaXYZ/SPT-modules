@@ -24,7 +24,7 @@ git config --local user.email "USERNAME@SOMETHING.com"
 
 
 ## Requirements
-- Escape From Tarkov 30626
+- Escape From Tarkov 33420
 - Visual Studio Code -OR- Visual Studio 2022
 - .NET 6 SDK
 - [PowerShell v7](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows)
@@ -32,6 +32,7 @@ git config --local user.email "USERNAME@SOMETHING.com"
 
 ## Project Setup
 Copy-paste Live EFT's `EscapeFromTarkov_Data/Managed/` folder to into this project's `Project/Shared/Managed/` folder
+
 
 ## Build (VS Code)
 1. File > Open Workspace > Modules.code-workspace
@@ -46,7 +47,7 @@ Copy-paste Live EFT's `EscapeFromTarkov_Data/Managed/` folder to into this proje
 
 ## Game Setup
 1. Copy Live EFT files into a separate directory (from now on this will be referred to as the "SPT directory")
-2. Download BepInEx 5.4.23.1 x64 ([BepInEx Releases - GitHub](https://github.com/BepInEx/BepInEx/releases/tag/v5.4.23.1))
+2. Download BepInEx 5.4.23.2 x64 ([BepInEx Releases - GitHub](https://github.com/BepInEx/BepInEx/releases/tag/v5.4.23.2))
 3. Extract contents of the BepInEx zip into the root SPT directory
 4. Build Modules, Server and Launcher
 5. Copy the contents of each project's `Build` folder into the root SPT directory

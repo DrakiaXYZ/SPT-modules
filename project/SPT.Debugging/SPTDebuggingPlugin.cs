@@ -4,6 +4,7 @@ using SPT.Common.Http;
 using SPT.Common.Utils;
 using SPT.Debugging.Patches;
 using BepInEx;
+using SPT.Custom.Models;
 
 namespace SPT.Debugging
 {
@@ -24,12 +25,9 @@ namespace SPT.Debugging
                 // new StaticLootDumper().Enable();
                 // new ExfilDumper().Enable();
 
-                // BTR debug command patches, can be disabled later
-                //new BTRDebugCommandPatch().Enable();
-                //new BTRDebugDataPatch().Enable();
-
-                //new PMCBotSpawnLocationPatch().Enable();
-                //new ReloadClientPatch().Enable();
+                // new PMCBotSpawnLocationPatch().Enable();
+                new ReloadClientPatch().Enable();
+                // new DumpyLibPatch().Enable();
 			}
             catch (Exception ex)
             {

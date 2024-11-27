@@ -17,11 +17,11 @@ namespace SPT.SinglePlayer.Patches.RaidFix
 
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(BotsPresets), nameof(BotsPresets.method_1));
+            return AccessTools.Method(typeof(BotsPresets), nameof(BotsPresets.method_3));
         }
 
         [PatchPostfix]
-        private static void PatchPostfix(List<WaveInfo> __result, List<WaveInfo> wavesProfiles, List<WaveInfo> delayed)
+        public static void PatchPostfix(List<WaveInfo> __result, List<WaveInfo> wavesProfiles, List<WaveInfo> delayed)
         {
             /*
                 Method sums Limits by grouping wavesPropfiles collection by Role and Difficulty

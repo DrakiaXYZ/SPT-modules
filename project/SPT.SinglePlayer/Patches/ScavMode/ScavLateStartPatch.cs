@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using SPT.SinglePlayer.Models.ScavMode;
 
 namespace SPT.SinglePlayer.Patches.ScavMode
 {
@@ -21,14 +22,14 @@ namespace SPT.SinglePlayer.Patches.ScavMode
     public class ScavLateStartPatch : ModulePatch
     {
         // A cache of Location settings before any edits were made
-        private static readonly Dictionary<string, LocationSettingsClass.Location> originalLocationSettings = new Dictionary<string, LocationSettingsClass.Location>();
+        private static readonly Dictionary<string, LocationSettingsClass.Location> originalLocationSettings = new();
 
         protected override MethodBase GetTargetMethod()
         {
             var desiredType = typeof(TarkovApplication);
             var desiredMethod = Array.Find(desiredType.GetMethods(PatchConstants.PublicDeclaredFlags), IsTargetMethod);
 
-            Logger.LogDebug($"{this.GetType().Name} Type: {desiredType?.Name}");
+            Logger.LogDebug($"{this.GetType().Name} Type: {desiredType.Name}");
             Logger.LogDebug($"{this.GetType().Name} Method: {desiredMethod?.Name}");
 
             return desiredMethod;
@@ -36,16 +37,19 @@ namespace SPT.SinglePlayer.Patches.ScavMode
 
         private bool IsTargetMethod(MethodInfo arg)
         {
-            // method_43 as of 26535
+            // method_46 as of 32128
             var parameters = arg.GetParameters();
-            return parameters.Length == 2
-                && parameters[0]?.Name == "timeAndWeather"
-                && parameters[1]?.Name == "timeHasComeScreenController"
-                && arg.ReturnType == typeof(Task);
+            return parameters.Length == 5 
+                   && parameters[0].Name == "gameWorld"
+                   && parameters[1].Name == "timeAndWeather"
+                   && parameters[2].Name == "timeHasComeScreenController"
+                   && parameters[3].Name == "metricsEvents"
+                   && parameters[4].Name == "metricsConfig"
+                   && arg.ReturnType == typeof(Task);
         }
 
         [PatchPrefix]
-        private static bool PatchPrefix(ref RaidSettings ____raidSettings)
+        public static bool PatchPrefix(ref RaidSettings ____raidSettings)
         {
             var currentMapId = ____raidSettings.SelectedLocation.Id;
 
@@ -67,14 +71,9 @@ namespace SPT.SinglePlayer.Patches.ScavMode
             ____raidSettings.SelectedLocation.EscapeTimeLimit = serverResult.RaidTimeMinutes;
 
             // Handle survival time changes
-            if (serverResult.NewSurviveTimeSeconds.HasValue)
-            {
-                AdjustSurviveTimeForExtraction(serverResult.NewSurviveTimeSeconds.Value);
-            }
-            else
-            {
-                AdjustSurviveTimeForExtraction(serverResult.OriginalSurvivalTimeSeconds);
-            }
+            AdjustSurviveTimeForExtraction(serverResult.NewSurviveTimeSeconds.HasValue
+                ? serverResult.NewSurviveTimeSeconds.Value
+                : serverResult.OriginalSurvivalTimeSeconds);
 
             // Handle exit changes
             ResetMapExits(____raidSettings.SelectedLocation, originalLocationSettings[currentMapId]);

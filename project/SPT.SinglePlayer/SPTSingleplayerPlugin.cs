@@ -1,18 +1,16 @@
 using System;
 using SPT.Common;
-using SPT.SinglePlayer.Patches.Healing;
 using SPT.SinglePlayer.Patches.MainMenu;
 using SPT.SinglePlayer.Patches.Progression;
-using SPT.SinglePlayer.Patches.Quests;
 using SPT.SinglePlayer.Patches.RaidFix;
 using SPT.SinglePlayer.Patches.ScavMode;
-using SPT.SinglePlayer.Patches.TraderServices;
 using BepInEx;
+using SPT.SinglePlayer.Utils.MainMenu;
 
 namespace SPT.SinglePlayer
 {
-    [BepInPlugin("com.SPT.singleplayer", "spt.Singleplayer", SPTPluginInfo.PLUGIN_VERSION)]
-    class SPTSingleplayerPlugin : BaseUnityPlugin
+    [BepInPlugin("com.SPT.singleplayer", "SPT.Singleplayer", SPTPluginInfo.PLUGIN_VERSION)]
+    public class SPTSingleplayerPlugin : BaseUnityPlugin
     {
         public void Awake()
         {
@@ -20,55 +18,53 @@ namespace SPT.SinglePlayer
 
             try
             {
-                new OfflineSaveProfilePatch().Enable();
-                //new OfflineSpawnPointPatch().Enable(); // Spawns are properly randomised and patch is likely no longer needed
-                new ExperienceGainPatch().Enable();
-                new ScavExperienceGainPatch().Enable();
-                new MainMenuControllerPatch().Enable();
-                new PlayerPatch().Enable();
-                new SelectLocationScreenPatch().Enable();
-                new InsuranceScreenPatch().Enable();
-                new BotTemplateLimitPatch().Enable();
-                new GetNewBotTemplatesPatch().Enable();
-                new RemoveUsedBotProfilePatch().Enable();
-                new DogtagPatch().Enable();
-                new LoadOfflineRaidScreenPatch().Enable();
-                new ScavPrefabLoadPatch().Enable();
-                new ScavProfileLoadPatch().Enable();
-                new ScavExfilPatch().Enable();
-                new ExfilPointManagerPatch().Enable();
-                new TinnitusFixPatch().Enable();
-                new MaxBotPatch().Enable();
-                new SpawnPmcPatch().Enable();
-                new PostRaidHealingPricePatch().Enable();
-                new EndByTimerPatch().Enable();
-                new InRaidQuestAvailablePatch().Enable();
-                new PostRaidHealScreenPatch().Enable();
-                new VoIPTogglerPatch().Enable();
-                new MidRaidQuestChangePatch().Enable();
-                new HealthControllerPatch().Enable();
-                new LighthouseBridgePatch().Enable();
-                new LighthouseTransmitterPatch().Enable();
+                // TODO: check if these patches are needed
+                new TinnitusFixPatch().Enable(); // Probably needed
                 new EmptyInfilFixPatch().Enable();
-                new SmokeGrenadeFuseSoundFixPatch().Enable();
-                new PlayerToggleSoundFixPatch().Enable();
+                new OverrideMaxAiAliveInRaidValuePatch().Enable();
+                //new PostRaidHealingPricePatch().Enable(); // Client handles this now
+                //new HideoutQuestIgnorePatch().Enable(); // Was only needed because FixQuestAchieveControllersPatch was causing issues 
+                //new SpawnProcessNegativeValuePatch().Enable(); // Client handles this edge case, revisit if bot count keeps going up
+                //new SpawnPmcPatch().Enable(); // 2.5+ years old, PMC spawn system very different, likely not needed
+                //new FixQuestAchieveControllersPatch().Enable(); // Likely not needed, if cheevos don't appear, revisit patch
+
+                // Still need
+                new FixPostScavRaidXpShowingZeroPatch().Enable();
+                new DisablePMCExtractsForScavsPatch().Enable();
+                new ScavExfilPatch().Enable();
+                new ScavProfileLoadPatch().Enable();
+                new ScavPrefabLoadPatch().Enable();
+                new DisableReadyLocationReadyPatch().Enable();
+                //new BotTemplateLimitPatch().Enable(); // Not necessary, controls how many 'respawns' the wave has, different to what the original patches intent was when written
+                new LoadOfflineRaidScreenPatch().Enable();
+                new AmmoUsedCounterPatch().Enable(); // Necessary for fixing bug #773
                 new PluginErrorNotifierPatch().Enable();
-                new SpawnProcessNegativeValuePatch().Enable();
-                new InsuredItemManagerStartPatch().Enable();
+                new GetNewBotTemplatesPatch().Enable();
                 new MapReadyButtonPatch().Enable();
-                new LabsKeycardRemovalPatch().Enable();
+                new RemoveUsedBotProfilePatch().Enable();
                 new ScavLateStartPatch().Enable();
-                new GetTraderServicesPatch().Enable();
-                new PurchaseTraderServicePatch().Enable();
                 new ScavSellAllPriceStorePatch().Enable();
                 new ScavSellAllRequestPatch().Enable();
-                new HideoutQuestIgnorePatch().Enable();
-                new LightKeeperServicesPatch().Enable();
-                new ScavEncyclopediaPatch().Enable();
                 new ScavRepAdjustmentPatch().Enable();
-                new AmmoUsedCounterPatch().Enable();
-                new ArmorDamageCounterPatch().Enable();
-                new FixAchievementsPatch().Enable();
+                
+                // 3.10.0
+                new DisableWelcomeToPVEModeMessagePatch().Enable();
+                new DisableMatchmakerPlayerPreviewButtonsPatch().Enable();
+                new EnableRefForPVEPatch().Enable();
+                new EnableRefIntermScreenPatch().Enable();
+                new EnablePlayerScavPatch().Enable();
+                new ScavFoundInRaidPatch().Enable();
+                new GetProfileAtEndOfRaidPatch().Enable();
+                new SendPlayerScavProfileToServerAfterRaidPatch().Enable();
+                //new InsuranceScreenPatch().Enable();
+                new RemoveStashUpgradeLabelPatch().Enable();
+				new RemoveClothingItemExternalObtainLabelPatch().Enable();
+				new ForceRaidModeToLocalPatch().Enable();
+				new ScavIsPlayerEnemyPatch().Enable();
+				new BotOwnerManualUpdatePatch().Enable();
+				new FirearmControllerShowIncompatibleNotificationClass().Enable();
+                new FixKeyAlreadyExistsErrorOnAchievementPatch().Enable();
+
             }
             catch (Exception ex)
             {
@@ -78,6 +74,11 @@ namespace SPT.SinglePlayer
             }
 
             Logger.LogInfo("Completed: SPT.SinglePlayer");
+        }
+
+        public void Start()
+        {
+            TraderServiceManager.GetModdedTraderData();
         }
     }
 }

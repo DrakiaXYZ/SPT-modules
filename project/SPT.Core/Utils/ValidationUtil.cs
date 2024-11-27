@@ -6,11 +6,12 @@ namespace SPT.Core.Utils
 {
     public static class ValidationUtil
     {
+        public static string _crashHandler = "0";
         private static bool _hasRun = false;
         
         public static bool Validate()
         {
-            var c0 = @"Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\EscapeFromTarkov";
+            const string c0 = @"Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\EscapeFromTarkov";
             var v0 = 0;
 
             try
@@ -31,7 +32,8 @@ namespace SPT.Core.Utils
 
                 if (!_hasRun)
                 {
-                    ServerLog.Debug("SPT.Core", Gfs(v2, "UnityCrashHandler64.exe")?.Length.ToString() ?? "0");
+                    _crashHandler = Gfs(v2, "UnityCrashHandler64.exe")?.Length.ToString() ?? "0";
+                    ServerLog.Debug("SPT.Core", _crashHandler);
                     ServerLog.Debug("SPT.Core", Gfs(v2, "Uninstall.exe")?.Length.ToString() ?? "0");
                     ServerLog.Debug("SPT.Core", Gfs(v2, "Register.bat")?.Length.ToString() ?? "0");
                     _hasRun = true;

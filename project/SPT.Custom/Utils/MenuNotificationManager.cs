@@ -1,7 +1,6 @@
 ﻿using SPT.Common.Http;
 using SPT.Common.Utils;
 using SPT.Custom.Models;
-using SPT.SinglePlayer.Patches.MainMenu;
 using BepInEx.Bootstrap;
 using BepInEx.Logging;
 using Comfort.Common;
@@ -9,15 +8,16 @@ using EFT.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SPT.Custom.Patches;
 using UnityEngine;
 
-namespace SPT.SinglePlayer.Utils.MainMenu
+namespace SPT.Custom.Utils
 {
     public class MenuNotificationManager : MonoBehaviour
     {
         public static string sptVersion;
         public static string commitHash;
-        internal static HashSet<string> whitelistedPlugins = new HashSet<string>
+        internal static HashSet<string> whitelistedPlugins = new()
         {
                 "com.SPT.core",
                 "com.SPT.custom",
@@ -30,17 +30,18 @@ namespace SPT.SinglePlayer.Utils.MainMenu
                 "com.cwx.debuggingtool",
                 "xyz.drakia.botdebug",
                 "com.kobrakon.camunsnap",
-                "RuntimeUnityEditor"
+                "RuntimeUnityEditor",
+                "com.dirtbikercj.debugplus"
         };
         
         public static string[] disallowedPlugins;
         internal static ReleaseResponse release;
-        private bool _isBetaDisclaimerOpen = false;
-        private ManualLogSource Logger;
+        private bool _isBetaDisclaimerOpen;
+        private ManualLogSource _logger;
 
         public void Start()
         {
-            Logger = BepInEx.Logging.Logger.CreateLogSource(nameof(MenuNotificationManager));
+            _logger = BepInEx.Logging.Logger.CreateLogSource(nameof(MenuNotificationManager));
 
             var versionJson = RequestHandler.GetJson("/singleplayer/settings/version");
             sptVersion = Json.Deserialize<VersionResponse>(versionJson).Version;
@@ -57,7 +58,7 @@ namespace SPT.SinglePlayer.Utils.MainMenu
             {
                 new BetaLogoPatch().Enable();
                 new BetaLogoPatch2().Enable();
-                new BetaLogoPatch3().Enable();
+                //new BetaLogoPatch3().Enable();
             }
 
             disallowedPlugins = Chainloader.PluginInfos.Values
@@ -71,7 +72,7 @@ namespace SPT.SinglePlayer.Utils.MainMenu
         
             if (release.isBeta && PlayerPrefs.GetInt("SPT_AcceptedBETerms") == 1)
             {
-                Logger.LogInfo(release.betaDisclaimerAcceptText);
+                _logger.LogInfo(release.betaDisclaimerAcceptText);
                 ServerLog.Info("SPT.Custom", release.betaDisclaimerAcceptText);
             }
 
@@ -122,7 +123,7 @@ namespace SPT.SinglePlayer.Utils.MainMenu
         // User accepted the terms, allow to continue.
         private void OnMessageAccepted()
         {
-            Logger.LogInfo(release.betaDisclaimerAcceptText);
+            _logger.LogInfo(release.betaDisclaimerAcceptText);
             PlayerPrefs.SetInt("SPT_AcceptedBETerms", 1);
             _isBetaDisclaimerOpen = false;
         }
@@ -157,13 +158,13 @@ namespace SPT.SinglePlayer.Utils.MainMenu
         // Should we show the message, only show if first run or if build has changed
         private bool ShouldShowBetaMessage()
         {
-            return PlayerPrefs.GetInt("SPT_AcceptedBETerms") == 0 && release.isBeta && !_isBetaDisclaimerOpen ? true : false;
+            return PlayerPrefs.GetInt("SPT_AcceptedBETerms") == 0 && release.isBeta && !_isBetaDisclaimerOpen;
         }
 
         // Should we show the release notes, only show on first run or if build has changed
         private bool ShouldShowReleaseNotes()
         {
-            return PlayerPrefs.GetInt("SPT_ShownReleaseNotes") == 0 && !_isBetaDisclaimerOpen && release.releaseSummaryText != string.Empty ? true : false;
+            return PlayerPrefs.GetInt("SPT_ShownReleaseNotes") == 0 && !_isBetaDisclaimerOpen && release.releaseSummaryText != string.Empty;
         }
     }
 }

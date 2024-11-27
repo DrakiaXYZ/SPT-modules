@@ -16,7 +16,7 @@ namespace SPT.Debugging.Patches
         }
 
         [PatchPrefix]
-        private static bool PatchPreFix(ref LocalizedText ____nickName, ref TMP_Text ____standing,
+        public static bool PatchPreFix(ref LocalizedText ____nickName, ref TMP_Text ____standing,
             ref RankPanel ____rankPanel, ref Profile.TraderInfo ___traderInfo_0)
         {
             if (____nickName.LocalizationKey == null)
@@ -49,7 +49,7 @@ namespace SPT.Debugging.Patches
                 Logger.Log(LogLevel.Error, "[SPT] ___traderInfo_0 or ___traderInfo_0.MaxLoyaltyLevel was null");
             }
 
-            return true;
+            return true; // Do original method
         }
     }
 }

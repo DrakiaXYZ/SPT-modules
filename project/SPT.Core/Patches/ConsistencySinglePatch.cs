@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Threading.Tasks;
 using SPT.Reflection.Patching;
 using SPT.Reflection.Utils;
@@ -20,7 +19,8 @@ namespace SPT.Core.Patches
         private static bool PatchPrefix(ref object __result)
         {
             __result = Task.FromResult<ICheckResult>(new FakeFileCheckerResult());
-            return false;
+
+            return false; // Skip original
         }
     }
 }

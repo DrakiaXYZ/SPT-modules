@@ -10,11 +10,6 @@ namespace SPT.SinglePlayer.Patches.MainMenu
     /// </summary>
     public class InsuranceScreenPatch : ModulePatch
     {
-        static InsuranceScreenPatch()
-        {
-            _ = nameof(MainMenuController.InventoryController);
-        }
-
         protected override MethodBase GetTargetMethod()
         {
             //[CompilerGenerated]
@@ -32,19 +27,13 @@ namespace SPT.SinglePlayer.Patches.MainMenu
             //    this.method_41();
             //}
 
-            return AccessTools.Method(typeof(MainMenuController), nameof(MainMenuController.method_74));
+            return AccessTools.Method(typeof(MainMenuController), nameof(MainMenuController.method_76));
         }
 
         [PatchPrefix]
-        private static void PrefixPatch(RaidSettings ___raidSettings_0)
+        public static void PrefixPatch(RaidSettings ___raidSettings_0)
         {
             ___raidSettings_0.RaidMode = ERaidMode.Online;
-        }
-
-        [PatchPostfix]
-        private static void PostfixPatch(RaidSettings ___raidSettings_0)
-        {
-            ___raidSettings_0.RaidMode = ERaidMode.Local;
         }
     }
 }

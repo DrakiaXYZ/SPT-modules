@@ -18,7 +18,7 @@ namespace SPT.Debugging.Patches
         }
 
         [PatchPostfix]
-        private static void PatchPostfix(string nlogFormat, string unityFormat, LogLevel logLevel, object[] args)
+        public static void PatchPostfix(string nlogFormat, string unityFormat, LogLevel logLevel, object[] args)
         {
             var bsgLevel = LogLevel.FromOrdinal(logLevel.Ordinal);
             var sptLevel = LogLevel.FromOrdinal(SPTDebuggingPlugin.logLevel.verbosity);
@@ -54,7 +54,7 @@ namespace SPT.Debugging.Patches
                 {
                     ServerLog.Info("EFT Logging:", $"{logLevel} : {nlogFormat}");
                 }
-             } 
+            } 
            
             // I've opted to leave this disabled for now, it doesn't add much in
             // terms of value, its mostly the same stuff as the nlogFormat

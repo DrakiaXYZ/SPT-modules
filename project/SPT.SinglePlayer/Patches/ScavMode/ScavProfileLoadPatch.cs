@@ -1,7 +1,7 @@
+using System;
 using SPT.Reflection.CodeWrapper;
 using SPT.Reflection.Patching;
 using SPT.Reflection.Utils;
-using Comfort.Common;
 using EFT;
 using HarmonyLib;
 using System.Collections.Generic;
@@ -15,15 +15,16 @@ namespace SPT.SinglePlayer.Patches.ScavMode
     {
         protected override MethodBase GetTargetMethod()
         {
-            // Struct225 - 20575
+            // Struct348 - 32128
+            // Struct364 - 33374
             var desiredType = typeof(TarkovApplication)
                 .GetNestedTypes(PatchConstants.PublicDeclaredFlags)
                 .SingleCustom(x => x.GetField("timeAndWeather") != null
-                              && x.GetField("timeHasComeScreenController") != null
-                              && x.Name.Contains("Struct"));
+                                   && x.GetField("gameWorld") != null
+                                   && x.GetField("metricsConfig") != null
+                                   && x.Name.Contains("Struct"));
 
-            var desiredMethod = desiredType.GetMethods(PatchConstants.PublicDeclaredFlags)
-                .FirstOrDefault(x => x.Name == "MoveNext");
+            var desiredMethod = AccessTools.Method(desiredType, "MoveNext");
 
             Logger.LogDebug($"{this.GetType().Name} Type: {desiredType?.Name}");
             Logger.LogDebug($"{this.GetType().Name} Method: {desiredMethod?.Name}");
@@ -32,7 +33,7 @@ namespace SPT.SinglePlayer.Patches.ScavMode
         }
 
         [PatchTranspiler]
-        private static IEnumerable<CodeInstruction> PatchTranspile(ILGenerator generator, IEnumerable<CodeInstruction> instructions)
+        public static IEnumerable<CodeInstruction> PatchTranspile(ILGenerator generator, IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
 
@@ -61,6 +62,7 @@ namespace SPT.SinglePlayer.Patches.ScavMode
 
             var brFalseLabel = generator.DefineLabel();
             var brLabel = generator.DefineLabel();
+            
             var newCodes = CodeGenerator.GenerateInstructions(new List<Code>()
             {
                 new Code(OpCodes.Ldloc_1),
@@ -81,10 +83,12 @@ namespace SPT.SinglePlayer.Patches.ScavMode
             return codes.AsEnumerable();
         }
 
-        private static bool IsTargetNestedType(System.Type nestedType)
+        private static bool IsTargetNestedType(Type nestedType)
         {
-            return nestedType.GetMethods(PatchConstants.PublicDeclaredFlags)
-                .Count(x => x.GetParameters().Length == 1 && x.GetParameters()[0].ParameterType == typeof(IResult)) > 0 && nestedType.GetField("savageProfile") != null;
+            return nestedType.GetMethods(PatchConstants.PublicDeclaredFlags).Any() &&
+                   nestedType.GetFields().Length == 5 &&
+                   nestedType.GetField("savageProfile") != null &&
+                   nestedType.GetField("profile") != null;
         }
     }
 }

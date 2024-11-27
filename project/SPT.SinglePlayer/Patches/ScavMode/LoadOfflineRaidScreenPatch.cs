@@ -32,7 +32,7 @@ namespace SPT.SinglePlayer.Patches.ScavMode
             _ = MatchmakerPlayerControllerClass.MAX_SCAV_COUNT; // UPDATE REFS TO THIS CLASS BELOW !!!
 
             // `MatchmakerInsuranceScreen` OnShowNextScreen
-            _onReadyScreenMethod = AccessTools.Method(typeof(MainMenuController), nameof(MainMenuController.method_44));
+            _onReadyScreenMethod = AccessTools.Method(typeof(MainMenuController), nameof(MainMenuController.method_46));
 
             _isLocalField = AccessTools.Field(typeof(MainMenuController), "bool_0");
             _menuControllerField = typeof(TarkovApplication).GetFields(PatchConstants.PrivateFlags).FirstOrDefault(x => x.FieldType == typeof(MainMenuController));
@@ -46,11 +46,11 @@ namespace SPT.SinglePlayer.Patches.ScavMode
         protected override MethodBase GetTargetMethod()
         {
             // `MatchMakerSelectionLocationScreen` OnShowNextScreen
-            return AccessTools.Method(typeof(MainMenuController), nameof(MainMenuController.method_71));
+            return AccessTools.Method(typeof(MainMenuController), nameof(MainMenuController.method_73));
         }
 
         [PatchTranspiler]
-        private static IEnumerable<CodeInstruction> PatchTranspiler(ILGenerator generator, IEnumerable<CodeInstruction> instructions)
+        public static IEnumerable<CodeInstruction> PatchTranspiler(ILGenerator generator, IEnumerable<CodeInstruction> instructions)
         {
             /* The original msil looks something like this:
              *   0	0000	ldarg.0
@@ -118,18 +118,20 @@ namespace SPT.SinglePlayer.Patches.ScavMode
             // Get fields from MainMenuController.cs
             var raidSettings = Traverse.Create(menuController).Field("raidSettings_0").GetValue<RaidSettings>();
 
+            var offlineRaidSettings = Traverse.Create(menuController).Field("raidSettings_1").GetValue<RaidSettings>();
+
             // Find the private field of type `MatchmakerPlayerControllerClass`
             var matchmakerPlayersController = menuController.GetType()
                 .GetFields(AccessTools.all)
                 .Single(field => field.FieldType == typeof(MatchmakerPlayerControllerClass))
-                ?.GetValue(menuController) as MatchmakerPlayerControllerClass;
+                .GetValue(menuController) as MatchmakerPlayerControllerClass;
 
-            var gclass = new MatchmakerOfflineRaidScreen.CreateRaidSettingsForProfileClass(profile?.Info, ref raidSettings, matchmakerPlayersController, ESessionMode.Regular);
+            var gclass = new MatchmakerOfflineRaidScreen.CreateRaidSettingsForProfileClass(profile?.Info, ref raidSettings, ref offlineRaidSettings, matchmakerPlayersController, ESessionMode.Pve);
 
             gclass.OnShowNextScreen += LoadOfflineRaidNextScreen;
 
             // `MatchmakerOfflineRaidScreen` OnShowReadyScreen
-            gclass.OnShowReadyScreen += (OfflineRaidAction)Delegate.CreateDelegate(typeof(OfflineRaidAction), menuController, nameof(MainMenuController.method_75));
+            gclass.OnShowReadyScreen += (OfflineRaidAction)Delegate.CreateDelegate(typeof(OfflineRaidAction), menuController, nameof(MainMenuController.method_77));
             gclass.ShowScreen(EScreenState.Queued);
         }
 
